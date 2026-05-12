@@ -1,0 +1,8 @@
+[Desktop Entry]
+Name=Time Capsule
+Comment=A tiny GTK stopwatch and timer
+Exec=time-capsule
+Icon=chronometer
+Terminal=false
+Type=Application
+Categories=Utility;
