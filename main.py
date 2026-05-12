@@ -63,7 +63,7 @@ class TimeCapsule(Gtk.Window):
         if markup:
             self.label.set_markup(text)
         else:
-            self.label_set_text(text)
+            self.label.set_text(text)
 
     def tick(self, *args):
         if self.state == "running":
@@ -79,6 +79,40 @@ class TimeCapsule(Gtk.Window):
                 else:
                     self.set_label(self.seconds_to_text(self.seconds))
         return True
+    
+    def show_help(self):
+        dialog = Gtk.Window()
+        dialog.set_title("Help")
+        dialog.set_decorated(False)
+        dialog.set_keep_above(True)
+        dialog.set_transient_for(self)
+        dialog.set_position(Gtk.WindowPosition.CENTER)
+        dialog.set_border_width(10)
+
+        help_text = (
+            "<b>Time Capsule Shortcuts</b>\n\n"
+            "<b>Space</b>  start / pause\n"
+            "<b>R</b>      reset\n"
+            "<b>M</b>      toggle stopwatch / timer\n"
+            "<b>H</b>      show this help\n"
+            "<b>+/-</b>    resize window\n\n"
+            "<b>Timer editing mode</b>\n"
+            "<b>← →</b>    move between digits\n"
+            "<b>↑ ↓</b>    change digit value\n"
+            "<b>Enter</b>  confirm time\n"
+            "<i>Press Esc or click away to close</i>"
+        )
+
+        label = Gtk.Label()
+        label.set_markup(help_text)
+        label.set_justify(Gtk.Justification.LEFT)
+
+        dialog.add(label)
+
+        dialog.connect("key-press-event", lambda w, e: w.destroy() if e.keyval == Gdk.KEY_Escape else None)
+        dialog.connect("focus-out-event", lambda w, e: w.destroy())
+
+        dialog.show_all()
 
     def on_key_press(self, widget, event):
         key = event.keyval
@@ -155,6 +189,9 @@ class TimeCapsule(Gtk.Window):
                 limits = [5, 9, 5, 9]
                 self.edit_digits[self.edit_pos] = (self.edit_digits[self.edit_pos] - 1) % (limits[self.edit_pos] + 1)
                 self.set_label(self.editing_text(), markup=True)
+
+        elif key ==  ord('h') or key == ord('H'):
+            self.show_help()
     
     def apply_styles(self):
         css = f"""
@@ -167,6 +204,8 @@ class TimeCapsule(Gtk.Window):
                 font-family: monospace;
                 font-size: {self.font_size}px;
                 padding: {self.font_size // 4}px {self.font_size // 1.5}px;
+                border: 2px solid #333333;
+                border-radius: 10px
             }}
         """.encode()
         provider = Gtk.CssProvider()
